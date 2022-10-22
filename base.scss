@@ -1,0 +1,21 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.app {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: #fff;
+  font-weight: 900;
+  z-index: 1000;
+}
+
+.canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
