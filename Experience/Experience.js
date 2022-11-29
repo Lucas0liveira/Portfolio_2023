@@ -32,9 +32,12 @@ export default function Experience(canvas) {
   this.renderer = new Renderer();
   this.world = new World();
 
+  this.scene.background = new THREE.Color( "#424242" );
+
   this.update = function () {
     this.camera.update();
     this.renderer.update();
+    this.world.update();
   };
 
   this.resize = function () {
@@ -44,5 +47,5 @@ export default function Experience(canvas) {
 
   this.time.event.on("update", () => this.update());
   this.sizes.event.on("resize", () => this.resize());
-  this.resources.event.on("ready", () => console.log("Carregou Irmão!!"));
+  this.resources.event.on("ready", () => console.log("Carregou!!"));
 }

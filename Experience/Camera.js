@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import Experience from "./Experience.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { AxesHelper } from "three";
 
 export default function Camera() {
   this.experience = new Experience();
@@ -16,6 +15,11 @@ export default function Camera() {
       0.1,
       1000
     );
+
+    this.scene.add(this.perspectiveCamera);
+    this.perspectiveCamera.position.x = 14;
+    this.perspectiveCamera.position.y = 27;
+    this.perspectiveCamera.position.z = 42;
   };
 
   this.createOrthographicCamera = function () {
@@ -24,38 +28,45 @@ export default function Camera() {
       (this.sizes.aspect * this.sizes.frustrum) / 2,
       this.sizes.frustrum / 2,
       -this.sizes.frustrum / 2,
-      -50,
-      50
+      -20,
+      30
     );
 
-    this.orthographicCamera.position.y = 5.65;
-    this.orthographicCamera.position.z = 7;
-    this.orthographicCamera.rotation.x = -Math.PI / 6;
+    this.orthographicCamera.position.x = 0;
+    this.orthographicCamera.position.y = 10;
+    this.orthographicCamera.position.z = 15;
+    this.orthographicCamera.zoom = 0.8;
+    this.orthographicCamera.lookAt(new THREE.Vector3(0, 3, 0));
 
     this.scene.add(this.orthographicCamera);
 
-    const size = 10;
-    const divisions = 10;
+    this.helper = new THREE.CameraHelper(this.orthographicCamera);
+    // this.scene.add(this.helper);
+
+    const size = 40;
+    const divisions = 40;
     const gridHelper = new THREE.GridHelper(size, divisions);
-    this.scene.add(gridHelper);
+    // this.scene.add(gridHelper);
 
     const axesHelper = new THREE.AxesHelper(10);
-    axesHelper.setColors("green", "blue", "red")
-    this.scene.add(axesHelper);
+    axesHelper.setColors("green", "blue", "red");
+    // this.scene.add(axesHelper);
   };
 
   this.setOrbitControls = function () {
-    this.controls = new OrbitControls(this.orthographicCamera, this.canvas);
+    this.controls = new OrbitControls(this.perspectiveCamera, this.canvas);
     this.controls.enableDamping = true;
     this.controls.enableZoom = true;
   };
 
+  this.createPerspectiveCamera();
+  this.createOrthographicCamera();
+  this.setOrbitControls();
+
   this.resize = function () {
-    // Updating Perspective Camera on Resize
     this.perspectiveCamera.aspect = this.sizes.aspect;
     this.perspectiveCamera.updateProjectionMatrix();
 
-    // Updating Orthographic Camera on Resize
     this.orthographicCamera.left =
       (-this.sizes.aspect * this.sizes.frustrum) / 2;
     this.orthographicCamera.right =
@@ -66,10 +77,13 @@ export default function Camera() {
   };
 
   this.update = function () {
-    this.controls.update();
-  };
+    // console.log(this.perspectiveCamera.position);
 
-  this.createPerspectiveCamera();
-  this.createOrthographicCamera();
-  this.setOrbitControls();
+    this.controls.update();
+
+    this.helper.matrixWorldNeedsUpdate = true;
+    this.helper.update();
+    this.helper.position.copy(this.orthographicCamera.position);
+    this.helper.rotation.copy(this.orthographicCamera.rotation);
+  };
 }

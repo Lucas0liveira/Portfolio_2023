@@ -31,6 +31,7 @@ export default function Renderer() {
   }
   
   this.update = function () {
+    // this.renderer.render(this.scene, this.camera.perspectiveCamera);
     this.renderer.render(this.scene, this.camera.orthographicCamera);
   }
 
