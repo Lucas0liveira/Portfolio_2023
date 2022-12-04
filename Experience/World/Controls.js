@@ -65,7 +65,7 @@ export default function Controls() {
         start: "top top",
         start: "top" + firstSection.offsetY,
         end: `+=${window.innerHeight}`,
-        scrub: 10,
+        scrub: 5,
         preventOverlaps: true
       },
         ease: 'back'
@@ -84,7 +84,7 @@ export default function Controls() {
         start: "top top",
         start: "top" + secondSection.offsetY,
         end: `+=${window.innerHeight}`,
-        scrub: 10,
+        scrub: 5,
         preventOverlaps: true
       },
         ease: 'back'
@@ -109,7 +109,7 @@ export default function Controls() {
         start: "top top",
         start: "top" + thirdSection.offsetY,
         end: `+=${window.innerHeight}`,
-        scrub: 10,
+        scrub: 5,
         preventOverlaps: true
       },
         ease: 'back'
@@ -125,7 +125,7 @@ export default function Controls() {
         start: "top top",
         start: "top" + fourthSection.offsetY,
         end: `+=${window.innerHeight}`,
-        scrub: 10,
+        scrub: 5,
         preventOverlaps: true
       },
         ease: 'back'
@@ -144,7 +144,7 @@ export default function Controls() {
         start: "top top",
         start: "top" + fifthSection.offsetY,
         end: `+=${window.innerHeight}`,
-        scrub: 10,
+        scrub: 5,
         preventOverlaps: true
       },
         ease: 'back'

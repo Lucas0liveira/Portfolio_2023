@@ -8,23 +8,23 @@ import Contact from "./views/Contact";
 export default () => {
   return (
     <div class="app-wrapper">
-      <section class="section hello">
+      <section class="section">
         <Hello/>
       </section>
 
-      <section class="section about-me">
+      <section class="section">
         <AboutMe/>
       </section>
 
-      <section class="section projects">
+      <section class="section">
         <Projects/>
       </section>
 
-      <section class="section work-experience">
+      <section class="section">
         <WorkExperience/>
       </section>
 
-      <section class="section contact">
+      <section class="section">
         <Contact/>
       </section>
 
