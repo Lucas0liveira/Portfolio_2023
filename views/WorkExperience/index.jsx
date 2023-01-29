@@ -5,7 +5,6 @@ export const WorkExperience = () => {
 
   return (
     <div class="work-experience">
-      <h1>Work Experience</h1>
     </div>
   )
 }

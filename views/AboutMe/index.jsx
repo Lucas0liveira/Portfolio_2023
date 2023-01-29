@@ -1,13 +1,13 @@
 import { h } from "start-dom-jsx";
-import "./styles.scss"
+import "./styles.scss";
 
 export const AboutMe = () => {
-
   return (
     <div class="about-me">
-    <h1>About Me</h1>
-  </div>
-  )
-}
+      <div classe="container">
+      </div>
+    </div>
+  );
+};
 
-export default AboutMe
+export default AboutMe;

@@ -5,8 +5,7 @@ export const Projects = () => {
 
   return (
     <div class="projects">
-    <h1>Projects</h1>
-  </div>
+    </div>
   )
 }
 
