@@ -21,6 +21,7 @@ export const Hello = () => {
           <li>🕜Adapting to mobile devices</li>
           <li>🕜Theme toggling</li>
           <li>🕜Translations</li>
+          <li>🕜Monitor's and portrait's images</li>
           <li>🕜Deploying and hosting on an owned domain</li>
         </ul>
       </div>

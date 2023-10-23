@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import Experience from "../Experience";
-import GSAP from "gsap";
+import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+import { LABELLED_ITEMS } from "../Utils/Constants.js"
 
 export default function Room() {
   this.experience = new Experience();
@@ -14,12 +15,28 @@ export default function Room() {
     ease: 0.1,
   };
 
-  this.room = this.resources.loaded_items.about_me.scene;
+  this.room = this.resources.loaded_items.room.scene;
+
+  this.createLabel = function (label, {x, y, z}) {
+    const header = document.createElement('div')
+    header.class = 'label';
+    header.textContent = label;
+    header.style.marginTop = '-1em';
+    header.style.color = "red";
+    header.style.fontSize = "30px";
+
+    const Label = new CSS2DObject(header)
+    Label.position.set(x, y, z)
+    this.scene.add(Label)
+  }
 
   this.setModel = function (model) {
-    model.children.forEach((child) => {
-      child.castShadow = true;
-      child.receiveShadow = true;
+    model.children.forEach((child, index) => {
+
+      if (LABELLED_ITEMS[child.name]) {
+          console.log(child, index)
+          this.createLabel(LABELLED_ITEMS[child.name]?.ptbr, child.position)
+      }
 
       if (child instanceof THREE.Group) {
         child.children.forEach((groupChild) => {
@@ -35,37 +52,24 @@ export default function Room() {
     model.position.y = 0;
     model.rotation.y = Math.PI / 2;
     this.scene.add(model);
+    console.log(this.scene)
   };
 
   this.setAnimation = function () {
     this.mixer = new THREE.AnimationMixer(this.room);
-    this.animation = this.mixer.clipAction(this.resources.loaded_items.about_me.animations[0]);
+    this.animation = this.mixer.clipAction(this.resources.loaded_items.room.animations[0]);
 
     this.animation.play();
   };
 
-  this.onMouseMove = function () {
-    window.addEventListener("mousemove", (e) => {
-      this.rotation =
-        ((e.clientX - window.innerWidth / 2) * 2) / window.innerWidth;
-      this.lerp.target = this.rotation * 0.1;
-    });
-  };
   this.resize = function () {};
 
   this.update = function () {
-    this.lerp.current = GSAP.utils.interpolate(
-      this.lerp.current,
-      this.lerp.target,
-      this.lerp.ease
-    );
-
-    this.room.rotation.y = this.lerp.current;
+    this.room.rotation.y = 1 - Math.PI/3;
 
     this.mixer.update(this.time.delta * 0.0009)
   };
 
   this.setModel(this.room);
   this.setAnimation();
-  this.onMouseMove();
 }

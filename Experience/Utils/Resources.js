@@ -19,17 +19,19 @@ export default function Resources(assets) {
     this.loaders.gltfLoader = new GLTFLoader();
     this.loaders.dracoLoader = new DRACOLoader();
     this.loaders.dracoLoader.setDecoderPath("/draco/");
+    this.loaders.dracoLoader.setDecoderConfig({type: 'js'})
     this.loaders.gltfLoader.setDRACOLoader(this.loaders.dracoLoader);
   };
 
   this.startLoading = function () {
+    console.time()
     for(const asset of this.assets) {
       if (asset.type === "glbModel") {
         this.loaders.gltfLoader.load(asset.path, (file) => {
           this.singleAssetLoaded(asset, file);
         });
       }
-    };
+    }
   };
 
   this.singleAssetLoaded = function (asset, file) {
@@ -37,6 +39,7 @@ export default function Resources(assets) {
     this.loaded++
 
     if(this.loaded === this.queue) {
+      console.timeEnd()
       this.event.emit("ready")
     }
   };

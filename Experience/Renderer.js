@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import Experience from "./Experience.js";
+import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 
 export default function Renderer() {
   this.experience = new Experience();
@@ -24,6 +25,15 @@ export default function Renderer() {
     this.renderer.setSize(this.sizes.width, this.sizes.height);
     this.renderer.setPixelRatio(this.sizes.pixelRatio);
   }
+
+  this.setLabelRenderer = function () {
+    this.labelRenderer = new CSS2DRenderer();
+    this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
+    this.labelRenderer.domElement.style.position = 'absolute';
+    this.labelRenderer.domElement.style.top = '0px';
+    this.labelRenderer.domElement.style.pointerEvents = 'none';
+    document.body.appendChild(this.labelRenderer.domElement);
+  }
   
   this.resize = function () {
     this.renderer.setSize(this.sizes.width, this.sizes.height);
@@ -31,9 +41,10 @@ export default function Renderer() {
   }
   
   this.update = function () {
-    // this.renderer.render(this.scene, this.camera.perspectiveCamera);
     this.renderer.render(this.scene, this.camera.orthographicCamera);
+    this.labelRenderer.render( this.scene, this.camera.orthographicCamera );
   }
 
+  this.setLabelRenderer();
   this.setRenderer();
 }

@@ -32,10 +32,13 @@ export default function Experience(canvas) {
   this.renderer = new Renderer();
   this.world = new World();
 
-  this.scene.background = new THREE.Color( "#E5E1E4" );
-  // this.scene.background = new THREE.Color( "#D2CDDE"  );
-  // this.scene.background = new THREE.Color( "#26274A" );
-  
+  this.setSceneBackground = function () {
+    // this.scene.background = new THREE.Color( "#E5E1E4" );
+    // this.scene.background = new THREE.Color( "#D2CDDE"  );
+    this.scene.background = new THREE.Color( "#150e2f" );
+  }
+
+  this.setSceneBackground()
 
   this.update = function () {
     this.camera.update();

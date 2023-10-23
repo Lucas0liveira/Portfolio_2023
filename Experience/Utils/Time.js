@@ -14,7 +14,9 @@ export default function Time() {
     this.elapsed = this.current - this.start;
 
     this.event.emit("update")
-    window.requestAnimationFrame(() => this.update());
+    requestAnimationFrame(() => {
+      this.update()
+    });
   };
 
   this.update();
