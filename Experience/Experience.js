@@ -2,13 +2,12 @@ import * as THREE from "three";
 
 import Sizes from "./Utils/Sizes.js";
 import Time from "./Utils/Time";
-import Assets from "./Utils/Assets";
+import Pointer from "./Utils/Pointer";
 import Resources from "./Utils/Resources.js";
-
 import Camera from "./Camera.js";
 import Renderer from "./Renderer.js";
-
 import World from "./World/World.js";
+import Assets from "./Utils/Assets";
 
 export default function Experience(canvas) {
   // singleton setup
@@ -31,14 +30,7 @@ export default function Experience(canvas) {
   this.camera = new Camera();
   this.renderer = new Renderer();
   this.world = new World();
-
-  this.setSceneBackground = function () {
-    // this.scene.background = new THREE.Color( "#E5E1E4" );
-    // this.scene.background = new THREE.Color( "#D2CDDE"  );
-    this.scene.background = new THREE.Color( "#150e2f" );
-  }
-
-  this.setSceneBackground()
+  this.pointer = new Pointer()
 
   this.update = function () {
     this.camera.update();
@@ -54,4 +46,5 @@ export default function Experience(canvas) {
   this.time.event.on("update", () => this.update());
   this.sizes.event.on("resize", () => this.resize());
   this.resources.event.on("ready", () => console.log("Carregou!!"));
+  this.pointer.event.on("view-clicked", (e) => console.log("Abrir modal => ", e))
 }

@@ -42,7 +42,6 @@ export default function Camera() {
   };
 
   this.setOrbitControls = function () {
-    console.log(this.canvas)
     this.controls = new OrbitControls(this.orthographicCamera, this.canvas);
     this.controls.target = new THREE.Vector3(0, 3, 0)
     this.controls.enableZoom = true;

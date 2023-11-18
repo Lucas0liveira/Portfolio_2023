@@ -4,9 +4,6 @@ import AboutMe from "./views/AboutMe";
 import Projects from "./views/Projects";
 import WorkExperience from "./views/WorkExperience";
 import Contact from "./views/Contact";
-import Experience from "./Experience/Experience";
-
-console.log(Experience.resources)
 
 export default () => {
   return (

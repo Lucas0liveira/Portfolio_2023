@@ -47,8 +47,14 @@ export default function World() {
     this.ambientLight = new THREE.AmbientLight("#ffaadd", 0.8);
     this.scene.add(this.ambientLight);
   };
+  this.setSceneBackground = function () {
+    // this.scene.background = new THREE.Color( "#E5E1E4" );
+    // this.scene.background = new THREE.Color( "#D2CDDE"  );
+    this.scene.background = new THREE.Color( "#150e2f" );
+  }
 
   this.setLight();
+  this.setSceneBackground()
 
   this.resize = function () {};
 

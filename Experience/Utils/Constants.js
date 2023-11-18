@@ -1,19 +1,23 @@
 export const LABELLED_ITEMS = {
-    "letter": {
+    "Letters": {
         ptbr: "Contato",
-        en: "Contact"
+        en: "Contact",
+        searchable: "contact"
     },
-    "book": {
+    "Books": {
         ptbr: "Experiência",
-        en: "Experience"
+        en: "Experience",
+        searchable: "experience"
     },
-    "second_monitor": {
+    "Workspace": {
         ptbr: "Projetos",
-        en: "Projects"
+        en: "Projects",
+        searchable: "projects"
     },
-    "picture_frame": {
+    "Portrait": {
         ptbr: "Sobre mim",
-        en: "About me"
+        en: "About me",
+        searchable: "about_me"
     },
 
 }

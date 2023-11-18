@@ -26,16 +26,20 @@ export default function Room() {
     header.style.fontSize = "30px";
 
     const Label = new CSS2DObject(header)
-    Label.position.set(x, y, z)
+    Label.position.set(x, y, z-3)
     this.scene.add(Label)
   }
 
   this.setModel = function (model) {
     model.children.forEach((child, index) => {
+      const item = LABELLED_ITEMS[child.name]
 
-      if (LABELLED_ITEMS[child.name]) {
-          console.log(child, index)
-          this.createLabel(LABELLED_ITEMS[child.name]?.ptbr, child.position)
+      if (item) {
+        const position = child.children?.length > 0
+          ? child.children[child.children.length-1].position
+          : child.position
+
+          this.createLabel(item?.ptbr, position)
       }
 
       if (child instanceof THREE.Group) {
@@ -45,6 +49,7 @@ export default function Room() {
         });
       }
     });
+
     const box = new THREE.Box3();
     box.setFromObject(model);
     box.getCenter(model.position);
@@ -52,7 +57,6 @@ export default function Room() {
     model.position.y = 0;
     model.rotation.y = Math.PI / 2;
     this.scene.add(model);
-    console.log(this.scene)
   };
 
   this.setAnimation = function () {
