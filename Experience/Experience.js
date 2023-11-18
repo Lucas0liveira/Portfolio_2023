@@ -43,8 +43,13 @@ export default function Experience(canvas) {
     this.renderer.resize();
   };
 
+  this.emitViewClicked = function (e) {
+    const event = new CustomEvent("view-clicked", {detail: e})
+    window.dispatchEvent(event)
+  }
+
   this.time.event.on("update", () => this.update());
   this.sizes.event.on("resize", () => this.resize());
   this.resources.event.on("ready", () => console.log("Carregou!!"));
-  this.pointer.event.on("view-clicked", (e) => console.log("Abrir modal => ", e))
+  this.pointer.event.on("view-clicked", this.emitViewClicked)
 }

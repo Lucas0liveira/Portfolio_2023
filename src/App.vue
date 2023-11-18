@@ -1,6 +1,8 @@
 <script setup>
 import HelloWorld from './components/HelloWorld.vue'
 import TheWelcome from './components/TheWelcome.vue'
+
+window.addEventListener("view-clicked", (e) => console.log("PEGUEI", e))
 </script>
 
 <template>
