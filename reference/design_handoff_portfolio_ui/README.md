@@ -200,7 +200,7 @@ below are the desktop intent; see **Responsive** for mobile.
   - **Link list**: GitHub (@Lucas0liveira), LinkedIn (/in/lucas-freitas), Résumé (Download PDF).
     Rows with label (small, ink-faint) over handle (15px, 600), arrow on the right, hover slides
     the row right by 10px, `1px` separators.
-  - ⚠️ **Placeholders to replace**: email is `hello@lucasfreitas.dev`; LinkedIn + Résumé URLs
+  - ⚠️ **Placeholders to replace**: email is `lucasoliveira96@outlook.com`; LinkedIn + Résumé URLs
     are `#`. Get the real values from Lucas.
 
 ---
