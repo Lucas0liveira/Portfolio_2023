@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Lucas Freitas — Portfolio UI Concepts</title>
+  <style data-from="styles.css">
+/* ============================================================
+   Lucas Freitas — Portfolio UI explorations
+   Design system derived from the 3D scene palette
+   ============================================================ */
+
+/* ---- Fonts ---- */
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..800;1,400..600&family=Outfit:wght@300..800&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400..700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root {
+  /* scene-derived palette */
+  --sage:        #aec5a2;
+  --sage-deep:   #8fb083;
+  --cream:       #efeae4;
+  --lav:         #8f7bd8;
+  --coral:       #e2774f;
+  --teal:        #2f9e8f;
+  --navy:        #343a64;
+  --pink:        #e6a3b2;
+  --book-red:    #b9503c;
+
+  --ink:         #262019;
+  --ink-soft:    #5b5246;
+  --ink-faint:   #8d8275;
+  --line:        rgba(38, 32, 25, 0.12);
+
+  /* accent — overridden by tweak */
+  --accent:      #e2774f;
+  --accent-ink:  #ffffff;
+
+  /* surface / glass — driven by the balance tweak (JS sets these) */
+  --surface:        rgba(250, 248, 244, 0.62);
+  --surface-solid:  rgba(250, 248, 244, 0.94);
+  --glass-blur:     16px;
+  --scrim:          0.06;
+
+  /* fonts — switched by [data-font] */
+  --font-display: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-body:    'Hanken Grotesk', system-ui, sans-serif;
+  --font-label:   'Hanken Grotesk', system-ui, sans-serif;
+  --label-spacing: 0.14em;
+  --label-transform: uppercase;
+  --display-weight: 760;
+  --display-tracking: -0.025em;
+
+  --ease: cubic-bezier(0.66, 0, 0.2, 1);
+  --radius: 18px;
+}
+
+/* font themes */
+[data-font="grotesque"] {
+  --font-display: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-label: 'Hanken Grotesk', system-ui, sans-serif;
+  --display-weight: 760; --display-tracking: -0.028em;
+  --label-spacing: 0.16em; --label-transform: uppercase;
+}
+[data-font="geometric"] {
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body: 'Outfit', system-ui, sans-serif;
+  --font-label: 'Outfit', system-ui, sans-serif;
+  --display-weight: 700; --display-tracking: -0.03em;
+  --label-spacing: 0.18em; --label-transform: uppercase;
+}
+[data-font="editorial"] {
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-label: 'Hanken Grotesk', system-ui, sans-serif;
+  --display-weight: 400; --display-tracking: -0.005em;
+  --label-spacing: 0.2em; --label-transform: uppercase;
+}
+[data-font="mono"] {
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-label: 'Space Mono', ui-monospace, monospace;
+  --display-weight: 600; --display-tracking: -0.02em;
+  --label-spacing: 0.04em; --label-transform: none;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: #d9dcd6;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#root { height: 100%; }
+
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+a { color: inherit; text-decoration: none; }
+
+/* ============================================================
+   STAGE + SCENE
+   ============================================================ */
+.stage {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+.scene-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #d9dcd6;
+}
+.scene-parallax {
+  position: absolute;
+  inset: -6%;
+  transition: transform 0.4s ease-out;
+  will-change: transform;
+}
+.scene-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.5s var(--ease);
+  will-change: transform;
+}
+/* subtle vignette + warmth so floating UI always has contrast */
+.scene-scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 40%, transparent 40%, rgba(38,32,25,0.10) 100%);
+  opacity: calc(var(--scrim) * 6);
+  transition: opacity 0.6s ease;
+}
+
+/* ============================================================
+   CHROME (always-on shared UI)
+   ============================================================ */
+.chrome { position: absolute; inset: 0; pointer-events: none; z-index: 30; }
+.chrome > * { pointer-events: auto; }
+
+/* brand mark top-left */
+.brand {
+  position: absolute; top: 26px; left: 30px;
+  display: flex; align-items: center; gap: 11px;
+  font-family: var(--font-label);
+  font-size: 13px; letter-spacing: var(--label-spacing);
+  text-transform: var(--label-transform);
+  color: var(--ink);
+}
+.brand .dot {
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+/* layout switcher — top center */
+.switcher {
+  position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 4px;
+  padding: 5px;
+  background: var(--surface-solid);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  box-shadow: 0 10px 30px -14px rgba(38,32,25,0.4);
+}
+.switcher .seg {
+  position: relative;
+  padding: 8px 16px;
+  font-family: var(--font-label);
+  font-size: 12px; letter-spacing: 0.04em;
+  text-transform: var(--label-transform);
+  color: var(--ink-soft);
+  border-radius: 100px;
+  transition: color 0.25s ease;
+  white-space: nowrap;
+}
+.switcher .seg.active { color: var(--accent-ink); }
+.switcher .seg .pill {
+  position: absolute; inset: 0;
+  background: var(--accent);
+  border-radius: 100px;
+  z-index: -1;
+}
+.switcher .lbl { font-weight: 600; }
+.switcher .hint {
+  font-size: 9px; opacity: 0.7; margin-left: 4px;
+  display: block; letter-spacing: 0.02em; text-transform: none;
+  font-weight: 400;
+}
+
+/* section nav — right side dots */
+.navdots {
+  position: absolute; top: 50%; right: 26px; transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 4px;
+  align-items: flex-end;
+}
+.navdots button {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 2px;
+  font-family: var(--font-label);
+  font-size: 11px; letter-spacing: 0.08em;
+  text-transform: var(--label-transform);
+  color: var(--ink-soft);
+}
+.navdots .nd-label {
+  opacity: 0; transform: translateX(6px);
+  transition: opacity 0.3s, transform 0.3s; white-space: nowrap;
+}
+.navdots button:hover .nd-label,
+.navdots button.active .nd-label { opacity: 1; transform: translateX(0); }
+.navdots .nd-tick {
+  width: 26px; height: 2px; border-radius: 2px;
+  background: var(--ink-faint); opacity: 0.5;
+  transition: all 0.35s var(--ease);
+}
+.navdots button.active .nd-tick { width: 40px; background: var(--accent); opacity: 1; }
+
+/* progress / scroll hint bottom-left */
+.scrollhint {
+  position: absolute; bottom: 26px; left: 30px;
+  display: flex; align-items: center; gap: 12px;
+  font-family: var(--font-label);
+  font-size: 11px; letter-spacing: var(--label-spacing);
+  text-transform: var(--label-transform);
+  color: var(--ink-soft);
+}
+.scrollhint .bar { width: 54px; height: 2px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.scrollhint .bar i { display: block; height: 100%; background: var(--accent); transition: width 0.5s var(--ease); }
+
+/* ============================================================
+   SCROLL TRACK (drives camera + section state)
+   ============================================================ */
+.scroll-track {
+  position: absolute; inset: 0;
+  overflow-y: scroll; overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+  z-index: 20;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.scroll-track::-webkit-scrollbar { display: none; }
+.scroll-sec { height: 100%; scroll-snap-align: start; scroll-snap-stop: always; }
+
+/* The content overlay is FIXED to the viewport but stays a DOM child of the
+   scroll-track, so wheel/touch over it still bubbles up and scrolls the track.
+   (absolute would scroll away with the spacers — sections 2-5 would vanish.) */
+.content-layer {
+  position: fixed; inset: 0; z-index: 25;
+  pointer-events: none;
+}
+/* Container stays click-through (so wheel/empty-area scrolls the track);
+   the actual cards & panels capture clicks. Wheel still scrolls because they
+   remain DOM children of .scroll-track and bubble up to it. */
+.content-layer .anchor-card,
+.content-layer .proj-mini,
+.content-layer .rail,
+.content-layer .sheet,
+.content-layer .sheet-min { pointer-events: auto; }
+
+/* ============================================================
+   SHARED CONTENT PRIMITIVES
+   ============================================================ */
+.eyebrow {
+  font-family: var(--font-label);
+  font-size: 12px; letter-spacing: var(--label-spacing);
+  text-transform: var(--label-transform);
+  color: var(--accent);
+  font-weight: 600;
+  display: inline-flex; align-items: center; gap: 9px;
+}
+.eyebrow .num { color: var(--ink-faint); }
+
+.display {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: 0.98;
+  color: var(--ink);
+}
+.lede {
+  font-size: clamp(15px, 1.15vw, 18px);
+  line-height: 1.5; color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+.glass {
+  background: var(--surface);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.25);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.25);
+  border: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+  border-radius: var(--radius);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.5) inset,
+    0 24px 50px -30px rgba(38,32,25,0.55);
+}
+
+.tag {
+  font-family: var(--font-label);
+  font-size: 11px; letter-spacing: 0.03em;
+  text-transform: var(--label-transform);
+  color: var(--ink-soft);
+  padding: 5px 11px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  background: color-mix(in srgb, var(--cream) 40%, transparent);
+}
+
+.btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: var(--font-label);
+  font-size: 13px; letter-spacing: 0.03em;
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 100px;
+  background: var(--accent); color: var(--accent-ink);
+  transition: transform 0.2s var(--ease), box-shadow 0.2s ease;
+  box-shadow: 0 12px 26px -12px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 18px 30px -14px color-mix(in srgb, var(--accent) 75%, transparent); }
+.btn.ghost {
+  background: transparent; color: var(--ink);
+  border: 1px solid var(--ink); box-shadow: none;
+}
+.btn.ghost:hover { background: var(--ink); color: var(--cream); }
+
+/* entrance animation for content */
+.enter > * { opacity: 0; transform: translateY(16px); }
+.enter.show > * { animation: rise 0.7s var(--ease) forwards; }
+.enter.show > *:nth-child(1) { animation-delay: 0.04s; }
+.enter.show > *:nth-child(2) { animation-delay: 0.11s; }
+.enter.show > *:nth-child(3) { animation-delay: 0.18s; }
+.enter.show > *:nth-child(4) { animation-delay: 0.25s; }
+.enter.show > *:nth-child(5) { animation-delay: 0.32s; }
+.enter.show > *:nth-child(6) { animation-delay: 0.39s; }
+@keyframes rise { to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .enter > *, .enter.show > * { opacity: 1 !important; transform: none !important; animation: none !important; }
+  .scene-img { transition: none; }
+}
+
+  </style>
+  <style data-from="layouts.css">
+/* ============================================================
+   THREE LAYOUT DIRECTIONS
+   A — Anchored asymmetric blocks
+   B — Docked side rail
+   C — Expanding bottom sheet (mobile-first)
+   ============================================================ */
+
+/* ---------- A · ANCHORED ASYMMETRIC BLOCKS ---------- */
+.anchored-field { position: absolute; inset: 0; }
+
+.anchor-card {
+  position: absolute;
+  padding: 22px 24px;
+  width: max-content;
+  max-width: min(40vw, 440px);
+}
+.anchor-card.wide { max-width: min(46vw, 540px); }
+.anchor-card h3 { font-size: 14px; }
+
+/* the scene pin + label */
+.anchor-pin {
+  position: absolute;
+  display: flex; align-items: center; gap: 9px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  opacity: var(--show-pins, 1);
+  transition: opacity 0.4s ease;
+}
+.anchor-pin .ring {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid var(--accent);
+  position: relative; flex: none;
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+}
+.anchor-pin .ring::after {
+  content: ''; position: absolute; inset: -7px; border-radius: 50%;
+  border: 1.5px solid var(--accent); opacity: 0.5;
+  animation: ping 2.6s var(--ease) infinite;
+}
+@keyframes ping { 0% { transform: scale(0.6); opacity: 0.6; } 70%,100% { transform: scale(1.5); opacity: 0; } }
+.anchor-pin .pin-label {
+  font-family: var(--font-label);
+  font-size: 10.5px; letter-spacing: 0.08em;
+  text-transform: var(--label-transform);
+  color: var(--ink); font-weight: 600;
+  padding: 4px 9px; border-radius: 100px;
+  background: var(--surface-solid);
+  box-shadow: 0 6px 16px -8px rgba(38,32,25,0.5);
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) { .anchor-pin .ring::after { animation: none; } }
+
+/* project mini cards cluster */
+.proj-mini {
+  position: absolute; padding: 16px 18px; width: 250px;
+  transition: transform 0.25s var(--ease);
+}
+.proj-mini:hover { transform: translateY(-4px); }
+.proj-mini .pm-bar { width: 30px; height: 4px; border-radius: 3px; margin-bottom: 12px; }
+.proj-mini h4 { font-family: var(--font-display); font-size: 17px; letter-spacing: -0.01em; }
+.proj-mini p { font-size: 12.5px; color: var(--ink-soft); line-height: 1.45; margin-top: 6px; }
+.proj-mini .pm-foot { display: flex; gap: 6px; margin-top: 12px; align-items: center; flex-wrap: wrap; }
+.proj-mini .pm-arrow { margin-left: auto; color: var(--accent); font-size: 15px; }
+
+/* ---------- B · DOCKED SIDE RAIL ---------- */
+.rail {
+  position: absolute; top: 0; bottom: 0; left: 0;
+  width: clamp(380px, 31vw, 460px);
+  display: flex; flex-direction: column;
+  background: var(--surface-solid);
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  border-right: 1px solid var(--line);
+  box-shadow: 30px 0 60px -40px rgba(38,32,25,0.5);
+  z-index: 26;
+}
+.rail-head {
+  padding: 78px 38px 22px;
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+.rail-head .r-name { font-family: var(--font-display); font-weight: var(--display-weight); letter-spacing: var(--display-tracking); font-size: 26px; }
+.rail-head .r-role { font-size: 13px; color: var(--ink-soft); margin-top: 4px; }
+.rail-nav { display: flex; gap: 4px; margin-top: 20px; flex-wrap: wrap; }
+.rail-nav button {
+  font-family: var(--font-label); font-size: 11px; letter-spacing: 0.04em;
+  text-transform: var(--label-transform);
+  padding: 7px 12px; border-radius: 100px; color: var(--ink-soft);
+  border: 1px solid transparent; transition: all 0.2s;
+}
+.rail-nav button.active { background: var(--accent); color: var(--accent-ink); }
+.rail-nav button:not(.active):hover { border-color: var(--line); }
+
+.rail-body { flex: 1; overflow-y: auto; padding: 32px 38px 40px; scrollbar-width: thin; }
+.rail-body::-webkit-scrollbar { width: 5px; }
+.rail-body::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+.rail-body .display { font-size: clamp(26px, 2.2vw, 34px); margin: 14px 0 16px; }
+
+/* ---------- C · EXPANDING BOTTOM SHEET ---------- */
+.sheet-min {
+  position: absolute; top: 84px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 12px;
+  font-family: var(--font-label); font-size: 12px;
+  letter-spacing: var(--label-spacing); text-transform: var(--label-transform);
+  color: var(--ink); padding: 8px 16px;
+  background: var(--surface); border-radius: 100px;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--line);
+}
+
+.sheet {
+  position: absolute; left: 50%; bottom: 0;
+  width: min(760px, 92vw); transform: translateX(-50%);
+  background: var(--surface-solid);
+  backdrop-filter: blur(22px) saturate(1.3);
+  -webkit-backdrop-filter: blur(22px) saturate(1.3);
+  border: 1px solid var(--line); border-bottom: none;
+  border-radius: 26px 26px 0 0;
+  box-shadow: 0 -28px 60px -34px rgba(38,32,25,0.55);
+  z-index: 26;
+  display: flex; flex-direction: column;
+  max-height: 82vh;
+  transition: transform 0.5s var(--ease);
+}
+.sheet-grip { padding: 12px 0 6px; display: flex; justify-content: center; cursor: grab; flex: none; }
+.sheet-grip i { width: 42px; height: 4px; border-radius: 4px; background: var(--ink-faint); opacity: 0.55; }
+.sheet-head {
+  padding: 4px 30px 18px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
+  flex: none; cursor: pointer;
+}
+.sheet-head .sh-title { font-family: var(--font-display); font-weight: var(--display-weight); letter-spacing: var(--display-tracking); font-size: clamp(22px, 2.4vw, 30px); line-height: 1.02; }
+.sheet-head .sh-toggle {
+  flex: none; display: flex; align-items: center; gap: 7px;
+  font-family: var(--font-label); font-size: 11px; letter-spacing: 0.05em;
+  text-transform: var(--label-transform); color: var(--ink-soft);
+  padding: 9px 14px; border-radius: 100px; border: 1px solid var(--line);
+}
+.sheet-head .sh-toggle .chev { transition: transform 0.4s var(--ease); display: inline-block; }
+.sheet.open .sheet-head .sh-toggle .chev { transform: rotate(180deg); }
+.sheet-body {
+  overflow: hidden; max-height: 0; opacity: 0;
+  transition: max-height 0.5s var(--ease), opacity 0.4s ease, padding 0.5s var(--ease);
+  padding: 0 30px;
+}
+.sheet.open .sheet-body { max-height: 60vh; opacity: 1; padding: 4px 30px 30px; overflow-y: auto; }
+.sheet-body::-webkit-scrollbar { width: 5px; }
+.sheet-body::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+
+/* ---------- shared section content bits ---------- */
+.stat-row { display: flex; gap: 26px; flex-wrap: wrap; }
+.stat-row .stat .k { font-family: var(--font-display); font-weight: var(--display-weight); font-size: 28px; color: var(--accent); letter-spacing: -0.02em; }
+.stat-row .stat .v { font-size: 11.5px; color: var(--ink-soft); max-width: 130px; line-height: 1.35; margin-top: 3px; }
+.chip-row { display: flex; gap: 7px; flex-wrap: wrap; }
+.link-list { display: flex; flex-direction: column; gap: 2px; }
+.link-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px 4px; border-bottom: 1px solid var(--line);
+  transition: padding 0.25s var(--ease);
+}
+.link-row:hover { padding-left: 10px; }
+.link-row:last-child { border-bottom: none; }
+.link-row .lr-label { font-family: var(--font-label); font-size: 11px; letter-spacing: 0.08em; text-transform: var(--label-transform); color: var(--ink-faint); }
+.link-row .lr-handle { font-size: 15px; font-weight: 600; }
+.link-row .lr-arrow { margin-left: auto; color: var(--accent); }
+
+.work-item { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.work-item:last-child { border-bottom: none; }
+.work-item .wi-top { display: flex; justify-content: space-between; gap: 14px; align-items: baseline; }
+.work-item .wi-role { font-weight: 700; font-size: 15px; }
+.work-item .wi-org { color: var(--accent); font-weight: 600; }
+.work-item .wi-period { font-family: var(--font-label); font-size: 10.5px; letter-spacing: 0.04em; color: var(--ink-faint); white-space: nowrap; }
+.work-item .wi-place { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+.work-item .wi-points { margin: 10px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.work-item .wi-points li { font-size: 12.5px; color: var(--ink-soft); line-height: 1.45; padding-left: 16px; position: relative; }
+.work-item .wi-points li::before { content: ''; position: absolute; left: 0; top: 8px; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); opacity: 0.6; }
+.work-item .wi-tech { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.mini-tag { font-family: var(--font-label); font-size: 10px; letter-spacing: 0.03em; color: var(--ink-soft); padding: 3px 8px; border: 1px solid var(--line); border-radius: 5px; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 860px) {
+  .switcher { top: 14px; gap: 2px; padding: 4px; }
+  .switcher .seg { padding: 7px 11px; font-size: 11px; }
+  .switcher .seg .hint { display: none; }
+  .navdots { right: 14px; }
+  .navdots .nd-label { display: none; }
+  .brand { top: 18px; left: 18px; font-size: 11px; }
+  .scrollhint { left: 18px; bottom: 18px; }
+
+  /* A mobile — cards become a bottom stack, pins hidden */
+  .anchored-field .anchor-pin { display: none; }
+  .anchor-card, .proj-mini {
+    position: relative !important; left: auto !important; right: auto !important;
+    top: auto !important; bottom: auto !important; width: auto !important; max-width: none !important;
+  }
+  .anchored-scroll {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    max-height: 64vh; overflow-y: auto;
+    padding: 16px 16px 24px; display: flex; flex-direction: column; gap: 12px;
+    -webkit-overflow-scrolling: touch;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 26px);
+    mask-image: linear-gradient(to bottom, transparent, #000 26px);
+  }
+  .proj-mini { width: auto !important; }
+
+  /* B mobile — rail docks to the bottom */
+  .rail {
+    top: auto; bottom: 0; left: 0; right: 0; width: auto;
+    height: 60vh; border-right: none; border-top: 1px solid var(--line);
+    border-radius: 22px 22px 0 0;
+    box-shadow: 0 -26px 56px -36px rgba(38,32,25,0.5);
+  }
+  .rail-head { padding: 22px 22px 16px; }
+  .rail-head .r-name { font-size: 22px; }
+  .rail-nav { margin-top: 14px; }
+  .rail-body { padding: 22px; }
+
+  /* C mobile — true bottom sheet */
+  .sheet { width: 100%; border-radius: 22px 22px 0 0; max-height: 88vh; }
+  .sheet-min { top: 64px; }
+  .sheet.open .sheet-body { max-height: 64vh; }
+  .sheet-head { padding: 4px 22px 16px; }
+}
+
+@media (max-width: 860px) and (max-height: 680px) {
+  .anchored-scroll { max-height: 56vh; }
+}
+
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React + Babel -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <!-- app -->
+
+  <script type="text/babel" data-from="tweaks-panel.jsx">
+// @ds-adherence-ignore -- omelette starter scaffold (raw elements/hex/px by design)
+
+/* BEGIN USAGE */
+// tweaks-panel.jsx
+// Reusable Tweaks shell + form-control helpers.
+// Exports (to window): useTweaks, TweaksPanel, TweakSection, TweakRow, TweakSlider,
+//   TweakToggle, TweakRadio, TweakSelect, TweakText, TweakNumber, TweakColor, TweakButton.
+//
+// Owns the host protocol (listens for __activate_edit_mode / __deactivate_edit_mode,
+// posts __edit_mode_available / __edit_mode_set_keys / __edit_mode_dismissed) so
+// individual prototypes don't re-roll it. Ships a consistent set of controls so you
+// don't hand-draw <input type="range">, segmented radios, steppers, etc.
+//
+// Usage (in an HTML file that loads React + Babel):
+//
+//   const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+//     "primaryColor": "#D97757",
+//     "palette": ["#D97757", "#29261b", "#f6f4ef"],
+//     "fontSize": 16,
+//     "density": "regular",
+//     "dark": false
+//   }/*EDITMODE-END*/;
+//
+//   function App() {
+//     const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+//     return (
+//       <div style={{ fontSize: t.fontSize, color: t.primaryColor }}>
+//         Hello
+//         <TweaksPanel>
+//           <TweakSection label="Typography" />
+//           <TweakSlider label="Font size" value={t.fontSize} min={10} max={32} unit="px"
+//                        onChange={(v) => setTweak('fontSize', v)} />
+//           <TweakRadio  label="Density" value={t.density}
+//                        options={['compact', 'regular', 'comfy']}
+//                        onChange={(v) => setTweak('density', v)} />
+//           <TweakSection label="Theme" />
+//           <TweakColor  label="Primary" value={t.primaryColor}
+//                        options={['#D97757', '#2A6FDB', '#1F8A5B', '#7A5AE0']}
+//                        onChange={(v) => setTweak('primaryColor', v)} />
+//           <TweakColor  label="Palette" value={t.palette}
+//                        options={[['#D97757', '#29261b', '#f6f4ef'],
+//                                  ['#475569', '#0f172a', '#f1f5f9']]}
+//                        onChange={(v) => setTweak('palette', v)} />
+//           <TweakToggle label="Dark mode" value={t.dark}
+//                        onChange={(v) => setTweak('dark', v)} />
+//         </TweaksPanel>
+//       </div>
+//     );
+//   }
+//
+// TweakRadio is the segmented control for 2–3 short options (auto-falls-back to
+// TweakSelect past ~16/~10 chars per label); reach for TweakSelect directly when
+// options are many or long. For color tweaks always curate 3-4 options rather than
+// a free picker; an option can also be a whole 2–5 color palette (the stored value
+// is the array). The Tweak* controls are a floor, not a ceiling — build custom
+// controls inside the panel if a tweak calls for UI they don't cover.
+/* END USAGE */
+// ─────────────────────────────────────────────────────────────────────────────
+
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    transform:scale(var(--dc-inv-zoom,1));transform-origin:bottom right;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
+
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+
+  .twk-field{appearance:none;box-sizing:border-box;width:100%;min-width:0;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
+    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;
+    overflow-wrap:anywhere}
+
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+
+  .twk-num{display:flex;align-items:center;box-sizing:border-box;min-width:0;height:26px;padding:0 0 0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}
+  .twk-num-lbl{font-weight:500;color:rgba(41,38,27,.6);cursor:ew-resize;
+    user-select:none;padding-right:8px}
+  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;
+    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;
+    outline:none;color:inherit;-moz-appearance:textfield}
+  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{
+    -webkit-appearance:none;margin:0}
+  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}
+
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+
+  .twk-chips{display:flex;gap:6px}
+  .twk-chip{position:relative;appearance:none;flex:1;min-width:0;height:46px;
+    padding:0;border:0;border-radius:6px;overflow:hidden;cursor:default;
+    box-shadow:0 0 0 .5px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.06);
+    transition:transform .12s cubic-bezier(.3,.7,.4,1),box-shadow .12s}
+  .twk-chip:hover{transform:translateY(-1px);
+    box-shadow:0 0 0 .5px rgba(0,0,0,.18),0 4px 10px rgba(0,0,0,.12)}
+  .twk-chip[data-on="1"]{box-shadow:0 0 0 1.5px rgba(0,0,0,.85),
+    0 2px 6px rgba(0,0,0,.15)}
+  .twk-chip>span{position:absolute;top:0;bottom:0;right:0;width:34%;
+    display:flex;flex-direction:column;box-shadow:-1px 0 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i{flex:1;box-shadow:0 -1px 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i:first-child{box-shadow:none}
+  .twk-chip svg{position:absolute;top:6px;left:6px;width:13px;height:13px;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
+`;
+
+// ── useTweaks ───────────────────────────────────────────────────────────────
+// Single source of truth for tweak values. setTweak persists via the host
+// (__edit_mode_set_keys → host rewrites the EDITMODE block on disk).
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  // Accepts either setTweak('key', value) or setTweak({ key: value, ... }) so a
+  // useState-style call doesn't write a "[object Object]" key into the persisted
+  // JSON block.
+  const setTweak = React.useCallback((keyOrEdits, val) => {
+    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
+      ? keyOrEdits : { [keyOrEdits]: val };
+    setValues((prev) => ({ ...prev, ...edits }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+    // Same-window signal so in-page listeners (deck-stage rail thumbnails)
+    // can react — the parent message only reaches the host, not peers.
+    window.dispatchEvent(new CustomEvent('tweakchange', { detail: edits }));
+  }, []);
+  return [values, setTweak];
+}
+
+// ── TweaksPanel ─────────────────────────────────────────────────────────────
+// Floating shell. Registers the protocol listener BEFORE announcing
+// availability — if the announce ran first, the host's activate could land
+// before our handler exists and the toolbar toggle would silently no-op.
+// The close button posts __edit_mode_dismissed so the host's toolbar toggle
+// flips off in lockstep; the host echoes __deactivate_edit_mode back which
+// is what actually hides the panel.
+function TweaksPanel({ title = 'Tweaks', children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', clampToViewport);
+      return () => window.removeEventListener('resize', clampToViewport);
+    }
+    const ro = new ResizeObserver(clampToViewport);
+    ro.observe(document.documentElement);
+    return () => ro.disconnect();
+  }, [open, clampToViewport]);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const t = e?.data?.type;
+      if (t === '__activate_edit_mode') setOpen(true);
+      else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const dismiss = () => {
+    setOpen(false);
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+  };
+
+  const onDragStart = (e) => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right;
+    const startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => {
+      offsetRef.current = {
+        x: startRight - (ev.clientX - sx),
+        y: startBottom - (ev.clientY - sy),
+      };
+      clampToViewport();
+    };
+    const up = () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel" data-omelette-chrome=""
+           style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" aria-label="Close tweaks"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={dismiss}>✕</button>
+        </div>
+        <div className="twk-body">
+          {children}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── Layout helpers ──────────────────────────────────────────────────────────
+
+function TweakSection({ label, children }) {
+  return (
+    <>
+      <div className="twk-sect">{label}</div>
+      {children}
+    </>
+  );
+}
+
+function TweakRow({ label, value, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl">
+        <span>{label}</span>
+        {value != null && <span className="twk-val">{value}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// ── Controls ────────────────────────────────────────────────────────────────
+
+function TweakSlider({ label, value, min = 0, max = 100, step = 1, unit = '', onChange }) {
+  return (
+    <TweakRow label={label} value={`${value}${unit}`}>
+      <input type="range" className="twk-slider" min={min} max={max} step={step}
+             value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </TweakRow>
+  );
+}
+
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
+              role="switch" aria-checked={!!value}
+              onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  // The active value is read by pointer-move handlers attached for the lifetime
+  // of a drag — ref it so a stale closure doesn't fire onChange for every move.
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+
+  // Segments wrap mid-word once per-segment width runs out. The track is
+  // ~248px (280 panel − 28 body pad − 4 seg pad), each button loses 12px
+  // to its own padding, and 11.5px system-ui averages ~6.3px/char — so 2
+  // options fit ~16 chars each, 3 fit ~10. Past that (or >3 options), fall
+  // back to a dropdown rather than wrap.
+  const labelLen = (o) => String(typeof o === 'object' ? o.label : o).length;
+  const maxLen = options.reduce((m, o) => Math.max(m, labelLen(o)), 0);
+  const fitsAsSegments = maxLen <= ({ 2: 16, 3: 10 }[options.length] ?? 0);
+  if (!fitsAsSegments) {
+    // <select> emits strings — map back to the original option value so the
+    // fallback stays type-preserving (numbers, booleans) like the segment path.
+    const resolve = (s) => {
+      const m = options.find((o) => String(typeof o === 'object' ? o.value : o) === s);
+      return m === undefined ? s : typeof m === 'object' ? m.value : m;
+    };
+    return <TweakSelect label={label} value={value} options={options}
+                        onChange={(s) => onChange(resolve(s))} />;
+  }
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const inner = r.width - 4;
+    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => {
+      if (!trackRef.current) return;
+      const v = segAt(ev.clientX);
+      if (v !== valueRef.current) onChange(v);
+    };
+    const up = () => {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
+           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb"
+             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`,
+                      width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => (
+          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakSelect({ label, value, options, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <select className="twk-field" value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => {
+          const v = typeof o === 'object' ? o.value : o;
+          const l = typeof o === 'object' ? o.label : o;
+          return <option key={v} value={v}>{l}</option>;
+        })}
+      </select>
+    </TweakRow>
+  );
+}
+
+function TweakText({ label, value, placeholder, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <input className="twk-field" type="text" value={value} placeholder={placeholder}
+             onChange={(e) => onChange(e.target.value)} />
+    </TweakRow>
+  );
+}
+
+function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) {
+  const clamp = (n) => {
+    if (min != null && n < min) return min;
+    if (max != null && n > max) return max;
+    return n;
+  };
+  const startRef = React.useRef({ x: 0, val: 0 });
+  const onScrubStart = (e) => {
+    e.preventDefault();
+    startRef.current = { x: e.clientX, val: value };
+    const decimals = (String(step).split('.')[1] || '').length;
+    const move = (ev) => {
+      const dx = ev.clientX - startRef.current.x;
+      const raw = startRef.current.val + dx * step;
+      const snapped = Math.round(raw / step) * step;
+      onChange(clamp(Number(snapped.toFixed(decimals))));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  return (
+    <div className="twk-num">
+      <span className="twk-num-lbl" onPointerDown={onScrubStart}>{label}</span>
+      <input type="number" value={value} min={min} max={max} step={step}
+             onChange={(e) => onChange(clamp(Number(e.target.value)))} />
+      {unit && <span className="twk-num-unit">{unit}</span>}
+    </div>
+  );
+}
+
+// Relative-luminance contrast pick — checkmarks drawn over a swatch need to
+// read on both #111 and #fafafa without per-option configuration. Hex input
+// only (#rgb / #rrggbb); named or rgb()/hsl() colors fall through to "light".
+function __twkIsLight(hex) {
+  const h = String(hex).replace('#', '');
+  const x = h.length === 3 ? h.replace(/./g, (c) => c + c) : h.padEnd(6, '0');
+  const n = parseInt(x.slice(0, 6), 16);
+  if (Number.isNaN(n)) return true;
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  return r * 299 + g * 587 + b * 114 > 148000;
+}
+
+const __TwkCheck = ({ light }) => (
+  <svg viewBox="0 0 14 14" aria-hidden="true">
+    <path d="M3 7.2 5.8 10 11 4.2" fill="none" strokeWidth="2.2"
+          strokeLinecap="round" strokeLinejoin="round"
+          stroke={light ? 'rgba(0,0,0,.78)' : '#fff'} />
+  </svg>
+);
+
+// TweakColor — curated color/palette picker. Each option is either a single
+// hex string or an array of 1-5 hex strings; the card adapts — a lone color
+// renders solid, a palette renders colors[0] as the hero (left ~2/3) with the
+// rest stacked in a sharp column on the right. onChange emits the
+// option in the shape it was passed (string stays string, array stays array).
+// Without options it falls back to the native color input for back-compat.
+function TweakColor({ label, value, options, onChange }) {
+  if (!options || !options.length) {
+    return (
+      <div className="twk-row twk-row-h">
+        <div className="twk-lbl"><span>{label}</span></div>
+        <input type="color" className="twk-swatch" value={value}
+               onChange={(e) => onChange(e.target.value)} />
+      </div>
+    );
+  }
+  // Native <input type=color> emits lowercase hex per the HTML spec, so
+  // compare case-insensitively. String() guards JSON.stringify(undefined),
+  // which returns the primitive undefined (no .toLowerCase).
+  const key = (o) => String(JSON.stringify(o)).toLowerCase();
+  const cur = key(value);
+  return (
+    <TweakRow label={label}>
+      <div className="twk-chips" role="radiogroup">
+        {options.map((o, i) => {
+          const colors = Array.isArray(o) ? o : [o];
+          const [hero, ...rest] = colors;
+          const sup = rest.slice(0, 4);
+          const on = key(o) === cur;
+          return (
+            <button key={i} type="button" className="twk-chip" role="radio"
+                    aria-checked={on} data-on={on ? '1' : '0'}
+                    aria-label={colors.join(', ')} title={colors.join(' · ')}
+                    style={{ background: hero }}
+                    onClick={() => onChange(o)}>
+              {sup.length > 0 && (
+                <span>
+                  {sup.map((c, j) => <i key={j} style={{ background: c }} />)}
+                </span>
+              )}
+              {on && <__TwkCheck light={__twkIsLight(hero)} />}
+            </button>
+          );
+        })}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakButton({ label, onClick, secondary = false }) {
+  return (
+    <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'}
+            onClick={onClick}>{label}</button>
+  );
+}
+
+Object.assign(window, {
+  useTweaks, TweaksPanel, TweakSection, TweakRow,
+  TweakSlider, TweakToggle, TweakRadio, TweakSelect,
+  TweakText, TweakNumber, TweakColor, TweakButton,
+});
+
+  </script>
+
+  <script type="text/babel" data-from="data.jsx">
+/* ============================================================
+   Content — Lucas Freitas
+   Edit freely; this is the single source of truth for all 3 layouts.
+   ============================================================ */
+const PORTFOLIO = {
+  name: 'Lucas Freitas',
+  role: 'Senior Full Stack Software Engineer',
+  location: 'Remote · Brazil / Canada',
+  // anchor = which scene object the camera frames for this section
+  sections: [
+    { id: 'hello',    label: 'Hello',     num: '01', anchor: 'room' },
+    { id: 'about',    label: 'About',     num: '02', anchor: 'shelf' },
+    { id: 'projects', label: 'Projects',  num: '03', anchor: 'monitors' },
+    { id: 'work',     label: 'Experience',num: '04', anchor: 'desk' },
+    { id: 'contact',  label: 'Contact',   num: '05', anchor: 'door' },
+  ],
+
+  hello: {
+    greeting: 'Hi, I’m Lucas',
+    headline: ['Full-stack', 'engineer building', 'things that ship.'],
+    sub: 'I design, build, test and deploy scalable web applications — from internal platforms and e-commerce to data-rich industrial software.',
+    quickTags: ['Python · Django', 'React · TypeScript', 'PostgreSQL · AWS'],
+  },
+
+  about: {
+    eyebrow: 'About me',
+    title: 'I own the full lifecycle — from architecture to deploy.',
+    body: [
+      'Full Stack Software Engineer with experience across web applications, internal platforms, e-commerce, industrial software and data-driven solutions. Strong on both frontend and backend.',
+      'I’ve shipped production software for real business challenges: performance optimization, deployment automation, database design, auth systems and multi-client SaaS architecture — work that cut infrastructure cost and streamlined delivery.',
+      'Earlier, I helped build a healthcare research project on 3D spine-curvature analysis that grew into an internationally funded startup, and taught digital literacy to elderly students.',
+    ],
+    stats: [
+      { k: '5+', v: 'years shipping production software' },
+      { k: '6', v: 'roles across web, data & industrial' },
+      { k: '∞', v: 'curiosity for new stacks' },
+    ],
+    stack: ['Python', 'Django', 'React', 'TypeScript', 'PostgreSQL', 'AWS', 'Docker', 'CI/CD', 'C++', 'Plotly Dash'],
+  },
+
+  projects: {
+    eyebrow: 'Selected projects',
+    title: 'Things I’ve built recently.',
+    items: [
+      {
+        name: 'Protetoras Três Lagoas',
+        blurb: 'A platform supporting an independent animal-protection group — adoptions, donations and volunteer coordination.',
+        tags: ['Django', 'PostgreSQL'],
+        url: 'https://github.com/Lucas0liveira/protetoras-tres-lagoas',
+        tint: 'var(--teal)',
+      },
+      {
+        name: 'Fornecedores',
+        blurb: 'Supplier management system to register, track and organise vendor relationships for a business workflow.',
+        tags: ['Python', 'React'],
+        url: 'https://github.com/Lucas0liveira/fornecedores',
+        tint: 'var(--lav)',
+      },
+      {
+        name: 'adote.me',
+        blurb: 'A pet-adoption web app connecting animals in need with new homes through a clean, friendly flow.',
+        tags: ['React', 'REST API'],
+        url: 'https://github.com/Lucas0liveira/adote.me',
+        tint: 'var(--coral)',
+      },
+      {
+        name: 'GitPeep',
+        blurb: 'A focused tool for peeking into GitHub profiles and surfacing the signal from a developer’s public work.',
+        tags: ['JavaScript', 'GitHub API'],
+        url: 'https://github.com/Lucas0liveira/gitpeep',
+        tint: 'var(--navy)',
+      },
+    ],
+  },
+
+  work: {
+    eyebrow: 'Work experience',
+    title: 'Where I’ve been building.',
+    items: [
+      {
+        role: 'Fullstack Software Engineer',
+        org: 'Icetek', place: 'Québec, Canada (Remote)', period: 'Mar 2025 — Present',
+        tech: ['Python', 'AWS', 'PostgreSQL', 'C++', 'Plotly Dash', 'CI/CD'],
+        points: [
+          'Refactored legacy systems for cleaner architecture and lower technical debt.',
+          'Built interactive data dashboards in Python & Plotly Dash.',
+          'Migrated legacy C++ config into PostgreSQL; built a pooled connection manager with failover across AWS + local replicas.',
+          'Automated deploy pipelines with GitHub Actions.',
+        ],
+      },
+      {
+        role: 'Fullstack Software Engineer',
+        org: 'Mercos', place: 'Joinville, Brazil (Remote)', period: 'Jan 2024 — Mar 2025',
+        tech: ['Python/Django', 'React'],
+        points: [
+          'Built end-to-end features with a focus on scalability and performance.',
+          'Wrote unit & integration tests across the Django + React stack.',
+          'Ran code reviews and mentored teammates to raise code quality.',
+        ],
+      },
+      {
+        role: 'Front-End Engineer → Team Lead',
+        org: 'Before TI', place: 'Campo Grande, Brazil', period: 'Mar 2021 — Jan 2024',
+        tech: ['Vue.js', 'JavaScript', 'Docker', 'Cypress'],
+        points: [
+          'Maintained a high-volume telecom sales system handling daily transactions.',
+          'Upgraded legacy codebases; built Cypress automation for QA.',
+          'Promoted to Front-End Team Lead — owned code quality, timelines & new product work.',
+        ],
+      },
+      {
+        role: 'Front-End Developer (Internship)',
+        org: 'Absolutier', place: 'Campo Grande, Brazil', period: 'Aug 2020 — Feb 2021',
+        tech: ['Vue.js', 'Quasar', 'Docker'],
+        points: [
+          'Built an educational platform with responsive layouts.',
+          'Translated UI/UX designs into production-ready features in a startup environment.',
+        ],
+      },
+      {
+        role: 'BackSCNR — Founding Developer',
+        org: 'UFMS Research', place: 'Campo Grande, Brazil', period: 'Jan 2019 — Jun 2020',
+        tech: ['Python', 'Blender 3D'],
+        points: [
+          'Initial developer on a research project that became BackSCNR, an internationally funded startup.',
+          'Built a Python app inside Blender to analyse torso scans and automate scoliosis detection & quantification.',
+        ],
+      },
+    ],
+    education: {
+      degree: 'B.Sc. Software Engineering',
+      school: 'Universidade Federal do Mato Grosso do Sul',
+      year: '2021',
+    },
+  },
+
+  contact: {
+    eyebrow: 'Contact me',
+    title: 'Let’s build something.',
+    sub: 'Open to senior full-stack roles and interesting problems. Drop a line — the mailbox is right there.',
+    email: 'hello@lucasfreitas.dev',
+    links: [
+      { label: 'GitHub', handle: '@Lucas0liveira', url: 'https://github.com/Lucas0liveira' },
+      { label: 'LinkedIn', handle: '/in/lucas-freitas', url: '#' },
+      { label: 'Résumé', handle: 'Download PDF', url: '#' },
+    ],
+  },
+};
+
+window.PORTFOLIO = PORTFOLIO;
+
+  </script>
+
+  <script type="text/babel" data-from="scene.jsx">
+/* ============================================================
+   Scene backdrop — simulates the real Three.js camera framing
+   by panning/zooming the rendered still per section.
+   In the real app this maps 1:1 to your camera keyframes.
+   ============================================================ */
+const { useRef, useEffect, useState } = React;
+
+// camera presets: transform-origin (%) + scale, tuned to the scene objects
+const CAMERA = {
+  room:     { ox: 50, oy: 50, scale: 1.04 },   // hello — wide establishing
+  shelf:    { ox: 90, oy: 20, scale: 1.62 },   // about — books on the window shelf
+  monitors: { ox: 90, oy: 50, scale: 1.66 },   // projects — the dual monitors
+  desk:     { ox: 84, oy: 70, scale: 1.5  },   // work — desk + keyboard
+  door:     { ox: 39, oy: 74, scale: 1.5  },   // contact — door + mail slot
+};
+
+// where the anchor "pin" lands on screen for the anchored layout (vw/vh %)
+const ANCHOR_POINT = {
+  room:     { x: 70, y: 64 },
+  shelf:    { x: 63, y: 40 },
+  monitors: { x: 72, y: 52 },
+  desk:     { x: 66, y: 66 },
+  door:     { x: 41, y: 58 },
+};
+
+function Scene({ anchor }) {
+  const parallaxRef = useRef(null);
+  const cam = CAMERA[anchor] || CAMERA.room;
+
+  // pointer parallax (desktop only)
+  useEffect(() => {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    let raf = null;
+    const onMove = (e) => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = null;
+        const dx = (e.clientX / window.innerWidth - 0.5);
+        const dy = (e.clientY / window.innerHeight - 0.5);
+        if (parallaxRef.current) {
+          parallaxRef.current.style.transform =
+            `translate(${dx * -22}px, ${dy * -16}px)`;
+        }
+      });
+    };
+    window.addEventListener('pointermove', onMove);
+    return () => { window.removeEventListener('pointermove', onMove); if (raf) cancelAnimationFrame(raf); };
+  }, []);
+
+  return (
+    <div className="scene-stage">
+      <div className="scene-parallax" ref={parallaxRef}>
+        <img
+          className="scene-img"
+          src="assets/scene.png"
+          alt="3D room scene"
+          style={{
+            transform: `scale(${cam.scale})`,
+            transformOrigin: `${cam.ox}% ${cam.oy}%`,
+          }}
+        />
+      </div>
+      <div className="scene-scrim" />
+    </div>
+  );
+}
+
+window.Scene = Scene;
+window.ANCHOR_POINT = ANCHOR_POINT;
+
+  </script>
+
+  <script type="text/babel" data-from="layouts.jsx">
+/* ============================================================
+   Layout directions A / B / C
+   All three read from window.PORTFOLIO and receive { active, go }.
+   active = current section index, go(i) = scroll to section i.
+   ============================================================ */
+
+/* ---------- shared content renderers (used by Rail + Sheet) ---------- */
+function ProjectBlocks() {
+  const P = window.PORTFOLIO;
+  return (
+    <div>
+      {P.projects.items.map((p, i) => (
+        <a className="work-item" href={p.url} target="_blank" rel="noopener" key={i} style={{ display: 'block' }}>
+          <div className="wi-top">
+            <span className="wi-role">{p.name}</span>
+            <span className="wi-period">{p.tags.join(' · ')}</span>
+          </div>
+          <p className="wi-place" style={{ marginTop: 6, lineHeight: 1.5 }}>{p.blurb}</p>
+          <span className="eyebrow" style={{ fontSize: 11, marginTop: 10 }}>View on GitHub <span aria-hidden="true">↗</span></span>
+        </a>
+      ))}
+    </div>
+  );
+}
+
+function WorkBlocks() {
+  const P = window.PORTFOLIO;
+  return (
+    <div>
+      {P.work.items.map((w, i) => (
+        <div className="work-item" key={i}>
+          <div className="wi-top">
+            <span className="wi-role">{w.role} <span className="wi-org">· {w.org}</span></span>
+            <span className="wi-period">{w.period}</span>
+          </div>
+          <div className="wi-place">{w.place}</div>
+          <ul className="wi-points">
+            {w.points.map((pt, j) => <li key={j}>{pt}</li>)}
+          </ul>
+          <div className="wi-tech">{w.tech.map((t, j) => <span className="mini-tag" key={j}>{t}</span>)}</div>
+        </div>
+      ))}
+      <div className="work-item">
+        <div className="wi-top"><span className="wi-role">{P.work.education.degree}</span><span className="wi-period">{P.work.education.year}</span></div>
+        <div className="wi-place">{P.work.education.school}</div>
+      </div>
+    </div>
+  );
+}
+
+function ContactLinks() {
+  const P = window.PORTFOLIO;
+  return (
+    <div className="link-list">
+      {P.contact.links.map((l, i) => (
+        <a className="link-row" href={l.url} target="_blank" rel="noopener" key={i}>
+          <span>
+            <span className="lr-label">{l.label}</span>
+            <div className="lr-handle">{l.handle}</div>
+          </span>
+          <span className="lr-arrow" aria-hidden="true">↗</span>
+        </a>
+      ))}
+    </div>
+  );
+}
+
+/* a single column of content for one section — Rail + Sheet share this */
+function ColumnContent({ secId, go }) {
+  const P = window.PORTFOLIO;
+  if (secId === 'hello') return (
+    <div className="enter show">
+      <span className="eyebrow">{P.hello.greeting}</span>
+      <h2 className="display" style={{ fontSize: 'clamp(30px,3vw,44px)', margin: '14px 0 16px' }}>
+        {P.hello.headline.map((l, i) => <span key={i} style={{ display: 'block' }}>{l}</span>)}
+      </h2>
+      <p className="lede" style={{ marginBottom: 22 }}>{P.hello.sub}</p>
+      <div className="chip-row" style={{ marginBottom: 24 }}>
+        {P.hello.quickTags.map((t, i) => <span className="tag" key={i}>{t}</span>)}
+      </div>
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <button className="btn" onClick={() => go(2)}>See projects <span aria-hidden="true">↓</span></button>
+        <button className="btn ghost" onClick={() => go(4)}>Get in touch</button>
+      </div>
+    </div>
+  );
+  if (secId === 'about') return (
+    <div className="enter show">
+      <span className="eyebrow"><span className="num">02</span> {P.about.eyebrow}</span>
+      <h2 className="display">{P.about.title}</h2>
+      {P.about.body.map((b, i) => <p className="lede" key={i} style={{ marginBottom: 14 }}>{b}</p>)}
+      <div className="stat-row" style={{ margin: '20px 0 22px' }}>
+        {P.about.stats.map((s, i) => <div className="stat" key={i}><div className="k">{s.k}</div><div className="v">{s.v}</div></div>)}
+      </div>
+      <div className="chip-row">{P.about.stack.map((s, i) => <span className="mini-tag" key={i}>{s}</span>)}</div>
+    </div>
+  );
+  if (secId === 'projects') return (
+    <div className="enter show">
+      <span className="eyebrow"><span className="num">03</span> {P.projects.eyebrow}</span>
+      <h2 className="display">{P.projects.title}</h2>
+      <div style={{ marginTop: 8 }}><ProjectBlocks /></div>
+    </div>
+  );
+  if (secId === 'work') return (
+    <div className="enter show">
+      <span className="eyebrow"><span className="num">04</span> {P.work.eyebrow}</span>
+      <h2 className="display">{P.work.title}</h2>
+      <div style={{ marginTop: 8 }}><WorkBlocks /></div>
+    </div>
+  );
+  if (secId === 'contact') return (
+    <div className="enter show">
+      <span className="eyebrow"><span className="num">05</span> {P.contact.eyebrow}</span>
+      <h2 className="display">{P.contact.title}</h2>
+      <p className="lede" style={{ margin: '12px 0 20px' }}>{P.contact.sub}</p>
+      <a className="btn" href={`mailto:${P.contact.email}`} style={{ marginBottom: 22 }}>{P.contact.email} <span aria-hidden="true">→</span></a>
+      <ContactLinks />
+    </div>
+  );
+  return null;
+}
+
+/* ============================================================
+   A · ANCHORED ASYMMETRIC BLOCKS
+   ============================================================ */
+function AnchoredLayout({ active, go }) {
+  const P = window.PORTFOLIO;
+  const sec = P.sections[active];
+  const pin = window.ANCHOR_POINT[sec.anchor];
+  const pinLabels = { room: 'the workspace', shelf: 'books & shelf', monitors: 'the monitors', desk: 'the desk', door: 'the mailbox' };
+
+  return (
+    <div className="anchored-field anchored-scroll" key={sec.id}>
+      <div className="anchor-pin" style={{ left: pin.x + 'vw', top: pin.y + 'vh' }}>
+        <span className="ring" /><span className="pin-label">{pinLabels[sec.anchor]}</span>
+      </div>
+
+      {sec.id === 'hello' && (
+        <div className="anchor-card glass wide enter show" style={{ left: '5vw', bottom: '11vh' }}>
+          <span className="eyebrow">{P.hello.greeting}</span>
+          <h2 className="display" style={{ fontSize: 'clamp(34px,5vw,68px)', margin: '12px 0 16px' }}>
+            {P.hello.headline.map((l, i) => <span key={i} style={{ display: 'block' }}>{l}</span>)}
+          </h2>
+          <p className="lede" style={{ maxWidth: 460, marginBottom: 20 }}>{P.hello.sub}</p>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+            <button className="btn" onClick={() => go(2)}>See projects <span aria-hidden="true">↓</span></button>
+            <div className="chip-row">{P.hello.quickTags.map((t, i) => <span className="tag" key={i}>{t}</span>)}</div>
+          </div>
+        </div>
+      )}
+
+      {sec.id === 'about' && (<>
+        <div className="anchor-card glass wide enter show" style={{ left: '5vw', top: '15vh' }}>
+          <span className="eyebrow"><span className="num">02</span> {P.about.eyebrow}</span>
+          <h2 className="display" style={{ fontSize: 'clamp(24px,2.6vw,38px)', margin: '12px 0 14px' }}>{P.about.title}</h2>
+          <p className="lede" style={{ maxWidth: 440 }}>{P.about.body[0]}</p>
+          <div className="stat-row" style={{ marginTop: 18 }}>
+            {P.about.stats.map((s, i) => <div className="stat" key={i}><div className="k">{s.k}</div><div className="v">{s.v}</div></div>)}
+          </div>
+        </div>
+        <div className="anchor-card glass enter show" style={{ left: '5vw', bottom: '10vh' }}>
+          <span className="eyebrow" style={{ marginBottom: 10, display: 'block' }}>Core stack</span>
+          <div className="chip-row" style={{ maxWidth: 360 }}>{P.about.stack.map((s, i) => <span className="mini-tag" key={i}>{s}</span>)}</div>
+        </div>
+      </>)}
+
+      {sec.id === 'projects' && (<>
+        <div className="anchor-card glass enter show" style={{ left: '5vw', top: '13vh' }}>
+          <span className="eyebrow"><span className="num">03</span> {P.projects.eyebrow}</span>
+          <h2 className="display" style={{ fontSize: 'clamp(22px,2.4vw,34px)', marginTop: 8 }}>{P.projects.title}</h2>
+        </div>
+        {P.projects.items.map((p, i) => {
+          const pos = [
+            { left: '5vw', top: '40vh' }, { left: '24vw', top: '30vh' },
+            { left: '5vw', top: '66vh' }, { left: '24vw', top: '56vh' },
+          ][i];
+          return (
+            <a className="proj-mini glass enter show" href={p.url} target="_blank" rel="noopener" key={i} style={pos}>
+              <div className="pm-bar" style={{ background: p.tint }} />
+              <h4>{p.name}</h4>
+              <p>{p.blurb}</p>
+              <div className="pm-foot">
+                {p.tags.map((t, j) => <span className="mini-tag" key={j}>{t}</span>)}
+                <span className="pm-arrow" aria-hidden="true">↗</span>
+              </div>
+            </a>
+          );
+        })}
+      </>)}
+
+      {sec.id === 'work' && (
+        <div className="anchor-card glass wide enter show" style={{ left: '5vw', top: '13vh', bottom: '13vh', maxHeight: '74vh', overflowY: 'auto', maxWidth: 'min(46vw,520px)' }}>
+          <span className="eyebrow"><span className="num">04</span> {P.work.eyebrow}</span>
+          <h2 className="display" style={{ fontSize: 'clamp(22px,2.4vw,32px)', margin: '8px 0 6px' }}>{P.work.title}</h2>
+          <WorkBlocks />
+        </div>
+      )}
+
+      {sec.id === 'contact' && (
+        <div className="anchor-card glass wide enter show" style={{ right: '5vw', bottom: '12vh' }}>
+          <span className="eyebrow"><span className="num">05</span> {P.contact.eyebrow}</span>
+          <h2 className="display" style={{ fontSize: 'clamp(30px,3.4vw,48px)', margin: '12px 0 14px' }}>{P.contact.title}</h2>
+          <p className="lede" style={{ maxWidth: 380, marginBottom: 18 }}>{P.contact.sub}</p>
+          <a className="btn" href={`mailto:${P.contact.email}`} style={{ marginBottom: 18 }}>{P.contact.email} <span aria-hidden="true">→</span></a>
+          <ContactLinks />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ============================================================
+   B · DOCKED SIDE RAIL
+   ============================================================ */
+function RailLayout({ active, go }) {
+  const P = window.PORTFOLIO;
+  const sec = P.sections[active];
+  return (
+    <div className="rail">
+      <div className="rail-head">
+        <div className="r-name">{P.name}</div>
+        <div className="r-role">{P.role} · {P.location}</div>
+        <div className="rail-nav">
+          {P.sections.map((s, i) => (
+            <button key={s.id} className={i === active ? 'active' : ''} onClick={() => go(i)}>{s.label}</button>
+          ))}
+        </div>
+      </div>
+      <div className="rail-body" key={sec.id}>
+        <ColumnContent secId={sec.id} go={go} />
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   C · EXPANDING BOTTOM SHEET
+   ============================================================ */
+function SheetLayout({ active, go }) {
+  const P = window.PORTFOLIO;
+  const sec = P.sections[active];
+  const [open, setOpen] = React.useState(true);
+  const titleMap = {
+    hello: P.hello.greeting, about: P.about.title, projects: P.projects.title,
+    work: P.work.title, contact: P.contact.title,
+  };
+  return (<>
+    <div className="sheet-min">
+      <span className="dot" style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--accent)' }} />
+      {P.name} — {P.role}
+    </div>
+    <div className={'sheet' + (open ? ' open' : '')}>
+      <div className="sheet-grip" onClick={() => setOpen(o => !o)}><i /></div>
+      <div className="sheet-head" onClick={() => setOpen(o => !o)}>
+        <div>
+          <span className="eyebrow"><span className="num">{sec.num}</span> {sec.label}</span>
+          <div className="sh-title" style={{ marginTop: 6 }}>{titleMap[sec.id]}</div>
+        </div>
+        <button className="sh-toggle" onClick={(e) => { e.stopPropagation(); setOpen(o => !o); }}>
+          {open ? 'Collapse' : 'Expand'} <span className="chev" aria-hidden="true">▴</span>
+        </button>
+      </div>
+      <div className="sheet-body" key={sec.id}>
+        <ColumnContent secId={sec.id} go={go} />
+      </div>
+    </div>
+  </>);
+}
+
+Object.assign(window, { AnchoredLayout, RailLayout, SheetLayout });
+
+  </script>
+
+  <script type="text/babel" data-from="app.jsx">
+/* ============================================================
+   Main app — scroll-driven section/camera engine + chrome + tweaks
+   ============================================================ */
+const { useState, useEffect, useRef, useCallback } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "font": "grotesque",
+  "accent": "#e2774f",
+  "balance": 42,
+  "showPins": true
+}/*EDITMODE-END*/;
+
+const LAYOUTS = [
+  { id: 'anchored', label: 'Anchored',    hint: 'floats by objects' },
+  { id: 'rail',     label: 'Side rail',   hint: 'scene center-stage' },
+  { id: 'sheet',    label: 'Bottom sheet',hint: 'mobile-first' },
+];
+
+function App() {
+  const P = window.PORTFOLIO;
+  const [t, setTweak] = window.useTweaks(TWEAK_DEFAULTS);
+  const [active, setActive] = useState(0);
+  const [layout, setLayout] = useState(() => localStorage.getItem('pf_layout') || 'anchored');
+  const trackRef = useRef(null);
+
+  /* ---- apply tweaks to :root ---- */
+  useEffect(() => {
+    const root = document.documentElement;
+    root.dataset.font = t.font;
+    root.style.setProperty('--accent', t.accent);
+    const b = Math.max(0, Math.min(1, t.balance / 100));
+    root.style.setProperty('--surface', `rgba(250,248,244,${(0.5 + 0.45 * b).toFixed(3)})`);
+    root.style.setProperty('--surface-solid', `rgba(250,248,244,${(0.85 + 0.13 * b).toFixed(3)})`);
+    root.style.setProperty('--glass-blur', `${(10 + 16 * b).toFixed(1)}px`);
+    root.style.setProperty('--scrim', (0.03 + 0.1 * b).toFixed(3));
+    root.style.setProperty('--show-pins', t.showPins ? '1' : '0');
+  }, [t]);
+
+  useEffect(() => { localStorage.setItem('pf_layout', layout); }, [layout]);
+
+  /* ---- scroll → active section ---- */
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    let raf = null;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = null;
+        const idx = Math.round(el.scrollTop / el.clientHeight);
+        setActive((prev) => (prev !== idx ? Math.max(0, Math.min(P.sections.length - 1, idx)) : prev));
+      });
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => { el.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf); };
+  }, []);
+
+  const go = useCallback((i) => {
+    const el = trackRef.current;
+    if (!el) return;
+    el.scrollTo({ top: i * el.clientHeight, behavior: 'smooth' });
+  }, []);
+
+  /* keyboard nav */
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); go(Math.min(active + 1, P.sections.length - 1)); }
+      if (e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); go(Math.max(active - 1, 0)); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [active, go]);
+
+  const sec = P.sections[active];
+  const LayoutComp = { anchored: window.AnchoredLayout, rail: window.RailLayout, sheet: window.SheetLayout }[layout];
+
+  return (
+    <div className="stage">
+      <window.Scene anchor={sec.anchor} />
+
+      {/* scroll scrubber — empty spacers provide scroll distance; content rides along as fixed children */}
+      <div className="scroll-track" ref={trackRef}>
+        {P.sections.map((s) => <div className="scroll-sec" key={s.id} aria-hidden="true" />)}
+        <div className="content-layer" data-layout={layout}>
+          {LayoutComp && <LayoutComp active={active} go={go} />}
+        </div>
+      </div>
+
+      {/* chrome */}
+      <div className="chrome">
+        <div className="brand"><span className="dot" />{P.name}</div>
+
+        <div className="switcher" role="tablist" aria-label="Layout direction">
+          {LAYOUTS.map((l) => (
+            <button key={l.id} className={'seg' + (layout === l.id ? ' active' : '')} onClick={() => setLayout(l.id)}>
+              {layout === l.id && <span className="pill" />}
+              <span className="lbl">{l.label}</span>
+              <span className="hint">{l.hint}</span>
+            </button>
+          ))}
+        </div>
+
+        <nav className="navdots">
+          {P.sections.map((s, i) => (
+            <button key={s.id} className={i === active ? 'active' : ''} onClick={() => go(i)} aria-label={s.label}>
+              <span className="nd-label">{s.label}</span>
+              <span className="nd-tick" />
+            </button>
+          ))}
+        </nav>
+
+        <div className="scrollhint">
+          <span>{sec.num} / 0{P.sections.length}</span>
+          <span className="bar"><i style={{ width: ((active) / (P.sections.length - 1) * 100) + '%' }} /></span>
+          <span>{sec.label}</span>
+        </div>
+      </div>
+
+      {/* tweaks */}
+      <window.TweaksPanel title="Tweaks">
+        <window.TweakSection label="Layout direction" />
+        <window.TweakRadio label="Direction" value={layout}
+          options={['anchored', 'rail', 'sheet']}
+          onChange={(v) => setLayout(v)} />
+        <window.TweakSection label="Typeface" />
+        <window.TweakRadio label="Family" value={t.font}
+          options={['grotesque', 'geometric', 'editorial', 'mono']}
+          onChange={(v) => setTweak('font', v)} />
+        <window.TweakSection label="Accent & balance" />
+        <window.TweakColor label="Accent" value={t.accent}
+          options={['#e2774f', '#8a74d8', '#2f9e8f', '#3a3f6b', '#b9503c']}
+          onChange={(v) => setTweak('accent', v)} />
+        <window.TweakSlider label="Scene ↔ content" value={t.balance} min={0} max={100} unit="%"
+          onChange={(v) => setTweak('balance', v)} />
+        <window.TweakToggle label="Scene anchor pins" value={t.showPins}
+          onChange={(v) => setTweak('showPins', v)} />
+      </window.TweaksPanel>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+
+  </script>
+</body>
+</html>
