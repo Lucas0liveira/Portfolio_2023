@@ -1,0 +1,252 @@
+/* ============================================================
+   Lucas Freitas — Portfolio design system
+   Derived from reference/design_handoff_portfolio_ui/styles.css
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..800;1,400..600&family=Outfit:wght@300..800&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400..700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root {
+  /* scene-derived palette */
+  --sage:        #aec5a2;
+  --cream:       #efeae4;
+  --lav:         #8f7bd8;
+  --coral:       #e2774f;
+  --teal:        #2f9e8f;
+  --navy:        #343a64;
+  --book-red:    #b9503c;
+
+  --ink:         #262019;
+  --ink-soft:    #5b5246;
+  --ink-faint:   #8d8275;
+  --line:        rgba(38, 32, 25, 0.12);
+
+  --accent:      #e2774f;
+  --accent-ink:  #ffffff;
+
+  /* glass surface */
+  --surface:        rgba(250, 248, 244, 0.62);
+  --surface-solid:  rgba(250, 248, 244, 0.94);
+  --glass-blur:     16px;
+  --scrim:          0.06;
+  --show-pins:      1;
+
+  /* fonts */
+  --font-display: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-body:    'Hanken Grotesk', system-ui, sans-serif;
+  --font-label:   'Hanken Grotesk', system-ui, sans-serif;
+  --label-spacing: 0.14em;
+  --label-transform: uppercase;
+  --display-weight: 760;
+  --display-tracking: -0.025em;
+
+  --ease: cubic-bezier(0.66, 0, 0.2, 1);
+  --radius: 18px;
+}
+
+[data-font="grotesque"] {
+  --font-display: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-label: 'Hanken Grotesk', system-ui, sans-serif;
+  --display-weight: 760; --display-tracking: -0.028em;
+  --label-spacing: 0.16em; --label-transform: uppercase;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+#root { height: 100%; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+a { color: inherit; text-decoration: none; }
+
+/* ============================================================
+   STAGE
+   ============================================================ */
+.stage {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* vignette scrim over the 3D scene */
+.scene-scrim {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 40%, transparent 40%, rgba(38,32,25,0.10) 100%);
+  opacity: calc(var(--scrim) * 6);
+  z-index: 5;
+}
+
+/* ============================================================
+   CHROME
+   ============================================================ */
+.chrome { position: absolute; inset: 0; pointer-events: none; z-index: 30; }
+.chrome > * { pointer-events: auto; }
+
+.brand {
+  position: absolute; top: 26px; left: 30px;
+  display: flex; align-items: center; gap: 11px;
+  font-family: var(--font-label);
+  font-size: 13px; letter-spacing: var(--label-spacing);
+  text-transform: var(--label-transform);
+  color: var(--ink);
+}
+.brand .dot {
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent);
+  flex: none;
+}
+
+.navdots {
+  position: absolute; top: 50%; right: 26px; transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 4px;
+  align-items: flex-end;
+}
+.navdots button {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 12px;
+  font-family: var(--font-label);
+  font-size: 11px; letter-spacing: 0.08em;
+  text-transform: var(--label-transform);
+  color: var(--ink-soft);
+  background: var(--surface-solid);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  border-radius: 100px;
+  border: 1px solid var(--line);
+  transition: box-shadow 0.2s ease;
+}
+.navdots button:hover {
+  box-shadow: 0 4px 14px -6px rgba(38,32,25,0.3);
+}
+.navdots .nd-label {
+  opacity: 0; transform: translateX(6px);
+  transition: opacity 0.3s, transform 0.3s; white-space: nowrap;
+}
+.navdots button:hover .nd-label,
+.navdots button.active .nd-label { opacity: 1; transform: translateX(0); }
+.navdots .nd-tick {
+  width: 26px; height: 2px; border-radius: 2px;
+  background: var(--ink-faint); opacity: 0.5;
+  transition: all 0.35s var(--ease);
+}
+.navdots button.active .nd-tick { width: 40px; background: var(--accent); opacity: 1; }
+
+.scrollhint {
+  position: absolute; bottom: 26px; left: 30px;
+  display: flex; align-items: center; gap: 12px;
+  font-family: var(--font-label);
+  font-size: 11px; letter-spacing: var(--label-spacing);
+  text-transform: var(--label-transform);
+  color: var(--ink-soft);
+}
+.scrollhint .bar { width: 54px; height: 2px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.scrollhint .bar i { display: block; height: 100%; background: var(--accent); transition: width 0.5s var(--ease); }
+
+/* ============================================================
+   SCROLL TRACK
+   ============================================================ */
+.scroll-track {
+  position: absolute; inset: 0;
+  overflow-y: scroll; overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+  z-index: 20;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.scroll-track::-webkit-scrollbar { display: none; }
+.scroll-sec { height: 100%; scroll-snap-align: start; scroll-snap-stop: always; }
+
+.content-layer {
+  position: fixed; inset: 0; z-index: 25;
+  pointer-events: none;
+}
+.content-layer .anchor-card,
+.content-layer .proj-mini { pointer-events: auto; }
+
+/* ============================================================
+   SHARED CONTENT PRIMITIVES
+   ============================================================ */
+.eyebrow {
+  font-family: var(--font-label);
+  font-size: 12px; letter-spacing: var(--label-spacing);
+  text-transform: var(--label-transform);
+  color: var(--accent);
+  font-weight: 600;
+  display: inline-flex; align-items: center; gap: 9px;
+}
+.eyebrow .num { color: var(--ink-faint); }
+
+.display {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: 0.98;
+  color: var(--ink);
+}
+.lede {
+  font-size: clamp(15px, 1.15vw, 18px);
+  line-height: 1.5; color: var(--ink-soft);
+}
+
+.glass {
+  background: var(--surface);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.25);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.25);
+  border: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+  border-radius: var(--radius);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.5) inset,
+    0 24px 50px -30px rgba(38,32,25,0.55);
+}
+
+.tag {
+  font-family: var(--font-label);
+  font-size: 11px; letter-spacing: 0.03em;
+  text-transform: var(--label-transform);
+  color: var(--ink-soft);
+  padding: 5px 11px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  background: color-mix(in srgb, var(--cream) 40%, transparent);
+}
+
+.btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: var(--font-label);
+  font-size: 13px; letter-spacing: 0.03em;
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 100px;
+  background: var(--accent); color: var(--accent-ink);
+  transition: transform 0.2s var(--ease), box-shadow 0.2s ease;
+  box-shadow: 0 12px 26px -12px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 18px 30px -14px color-mix(in srgb, var(--accent) 75%, transparent); }
+.btn.ghost {
+  background: transparent; color: var(--ink);
+  border: 1px solid var(--ink); box-shadow: none;
+}
+.btn.ghost:hover { background: var(--ink); color: var(--cream); }
+
+/* entrance animation */
+.enter > * { opacity: 0; transform: translateY(16px); }
+.enter.show > * { animation: rise 0.7s var(--ease) forwards; }
+.enter.show > *:nth-child(1) { animation-delay: 0.04s; }
+.enter.show > *:nth-child(2) { animation-delay: 0.11s; }
+.enter.show > *:nth-child(3) { animation-delay: 0.18s; }
+.enter.show > *:nth-child(4) { animation-delay: 0.25s; }
+.enter.show > *:nth-child(5) { animation-delay: 0.32s; }
+.enter.show > *:nth-child(6) { animation-delay: 0.39s; }
+@keyframes rise { to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .enter > *, .enter.show > * { opacity: 1 !important; transform: none !important; animation: none !important; }
+}

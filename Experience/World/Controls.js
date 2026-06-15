@@ -1,167 +1,84 @@
 import * as THREE from "three";
 import Experience from "../Experience";
 import GSAP from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger.js";
+
+/* Camera position + look-at target + zoom per section index.
+   These preserve the feel of the original curve-based animation
+   while making each section's framing explicit and data-driven. */
+const CAMERA_KEYFRAMES = [
+  // 00 · Hello — wide establishing shot, room offset right to reveal left-side card
+  { position: { x: 0,  y: 10, z: 10 }, lookAt: { x: 0, y: 3, z: 0  }, zoom: 1,   roomX: 5 },
+  // 01 · About — same wide angle as Hello, room centred (cards are on the left)
+  { position: { x: 0,  y: 10, z: 10 }, lookAt: { x: 0, y: 3, z: 0  }, zoom: 1,   roomX: 0 },
+  // 02 · Projects — zoomed into the desk / dual monitors
+  { position: { x: -3, y: 7,  z: 3  }, lookAt: { x: 1, y: 2, z: -3 }, zoom: 2.8, roomX: 0 },
+  // 03 · Experience — desk surface / keyboard, looking deeper into the room
+  { position: { x: -3, y: 7,  z: 3  }, lookAt: { x: -5, y: 1, z: -6 }, zoom: 1.5, roomX: 0 },
+  // 04 · Contact — green door / mail slot, pull back and angle toward the door
+  { position: { x: 3,  y: 9,  z: 9  }, lookAt: { x: -2, y: 1, z: -4 }, zoom: 1.2, roomX: 0 },
+];
+
+const TWEEN_DURATION = 1.4;
+const TWEEN_EASE = 'power2.inOut';
 
 export default function Controls() {
   this.experience = new Experience();
-  this.scene = this.experience.scene;
-  this.resources = this.experience.resources;
-  this.time = this.experience.time;
   this.camera = this.experience.camera;
   this.world = this.experience.world;
   this.room = this.world.room;
 
-  this.progressPath = 0;
-  this.progressFocus = 0;
-  this.positionAtPathCurve = new THREE.Vector3(0, 0, 0);
-  this.positionAtCameraCurve = new THREE.Vector3(0, 0, 0);
+  /* Tweening target for lookAt — updated in update() each frame */
+  this.lookAtTarget = new THREE.Vector3(0, 3, 0);
 
-  this.position = new THREE.Vector3(0, 0, 0);
+  /* Jump camera to a section's keyframe with a smooth tween */
+  this.gotoSection = function (index) {
+    const kf = CAMERA_KEYFRAMES[Math.max(0, Math.min(index, CAMERA_KEYFRAMES.length - 1))];
 
-  GSAP.registerPlugin(ScrollTrigger);
+    GSAP.to(this.camera.orthographicCamera.position, {
+      x: kf.position.x, y: kf.position.y, z: kf.position.z,
+      duration: TWEEN_DURATION,
+      ease: TWEEN_EASE,
+    });
 
-  this.setPath = function () {
-    this.pathCurve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(0, 10, 10),
-      new THREE.Vector3(-3, 7, 3),
-    ]);
+    GSAP.to(this.lookAtTarget, {
+      x: kf.lookAt.x, y: kf.lookAt.y, z: kf.lookAt.z,
+      duration: TWEEN_DURATION,
+      ease: TWEEN_EASE,
+    });
 
-    const path_points = this.pathCurve.getPoints(50);
-    const path_geometry = new THREE.BufferGeometry().setFromPoints(path_points);
+    GSAP.to(this.camera.orthographicCamera, {
+      zoom: kf.zoom,
+      duration: TWEEN_DURATION,
+      ease: TWEEN_EASE,
+      onUpdate: () => this.camera.orthographicCamera.updateProjectionMatrix(),
+    });
 
-    const path_material = new THREE.LineBasicMaterial({ color: 0xff00AA });
+    /* slide the room model — section 0 offsets it right to uncover left-side card */
+    if (this.room?.room) {
+      GSAP.to(this.room.room.position, {
+        x: kf.roomX,
+        duration: TWEEN_DURATION,
+        ease: TWEEN_EASE,
+      });
+    }
+  };
 
-    const path_curveObject = new THREE.Line(path_geometry, path_material);
-    // this.scene.add(path_curveObject);
-
-
-    this.cameraCurve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(0, 3, 0),
-      new THREE.Vector3(5, 3, -3),
-      new THREE.Vector3(-5, 1, -6),
-    ]);
-
-    const cam_points = this.cameraCurve.getPoints(50);
-    const cam_geometry = new THREE.BufferGeometry().setFromPoints(cam_points);
-
-    const cam_material = new THREE.LineBasicMaterial({ color: 0x2200FF });
-
-    const cam_curveObject = new THREE.Line(cam_geometry, cam_material);
-    // this.scene.add(cam_curveObject);
+  /* Initialize camera to section 0 position immediately */
+  const kf0 = CAMERA_KEYFRAMES[0];
+  this.camera.orthographicCamera.position.set(kf0.position.x, kf0.position.y, kf0.position.z);
+  this.camera.orthographicCamera.zoom = kf0.zoom;
+  this.camera.orthographicCamera.updateProjectionMatrix();
+  if (this.room?.room) {
+    this.room.room.position.x = kf0.roomX;
   }
 
-  this.setScrollTrigger = function() {
-    const firstSection = document.querySelector(".hello");
-    const secondSection = document.querySelector(".about-me");
-    const thirdSection = document.querySelector(".projects");
-    const fourthSection = document.querySelector(".work-experience");
-    const fifthSection = document.querySelector(".contact");
-
-    this.firstTimeline = new GSAP.timeline({
-      scrollTrigger: {
-        scroller: ".app-wrapper",
-        trigger: firstSection,
-        start: "top top",
-        start: "top" + firstSection.offsetY,
-        end: `+=${window.innerHeight}`,
-        scrub: 5,
-        preventOverlaps: true
-      },
-        ease: 'back'
-    })
-    .to(this.room.room.position, {
-      x: 5
-    })
-    .to(this.camera.orthographicCamera, {
-      zoom: 1
-    })
-    
-    this.secondTimeline = new GSAP.timeline({
-      scrollTrigger: {
-        scroller: ".app-wrapper",
-        trigger: secondSection,
-        start: "top top",
-        start: "top" + secondSection.offsetY,
-        end: `+=${window.innerHeight}`,
-        scrub: 5,
-        preventOverlaps: true
-      },
-        ease: 'back'
-    })
-    .to(this.room.room.position, {
-      x: 0
-    })
-    .to(this, {
-      progressFocus: 0.35
-    })
-    .to(this, {
-      progressPath: 1
-    })
-    .to(this.camera.orthographicCamera, {
-      zoom: 3
-    })
-
-    this.thirdTimeline = new GSAP.timeline({
-      scrollTrigger: {
-        scroller: ".app-wrapper",
-        trigger: thirdSection,
-        start: "top top",
-        start: "top" + thirdSection.offsetY,
-        end: `+=${window.innerHeight}`,
-        scrub: 5,
-        preventOverlaps: true
-      },
-        ease: 'back'
-    })
-    .to(this.camera.orthographicCamera, {
-      zoom: 2.8
-    })
-    
-    this.fourthTimeline = new GSAP.timeline({
-      scrollTrigger: {
-        scroller: ".app-wrapper",
-        trigger: fourthSection,
-        start: "top top",
-        start: "top" + fourthSection.offsetY,
-        end: `+=${window.innerHeight}`,
-        scrub: 5,
-        preventOverlaps: true
-      },
-        ease: 'back'
-    })
-    .to(this, {
-      progressFocus: 1
-    })
-    .to(this.camera.orthographicCamera, {
-      zoom: 1.5
-    })
-      
-    this.fifthTimeline = new GSAP.timeline({
-      scrollTrigger: {
-        scroller: ".app-wrapper",
-        trigger: fifthSection,
-        start: "top top",
-        start: "top" + fifthSection.offsetY,
-        end: `+=${window.innerHeight}`,
-        scrub: 5,
-        preventOverlaps: true
-      },
-        ease: 'back'
-    })
-  }
-
-  this.setPath();
-  this.setScrollTrigger()
+  /* Expose a global so the React layer can drive section transitions */
+  window.portfolioGoto = (i) => this.gotoSection(i);
 
   this.resize = function () {};
 
   this.update = function () {
-    this.pathCurve.getPointAt(this.progressPath, this.positionAtPathCurve);
-    this.camera.orthographicCamera.position.copy(this.positionAtPathCurve);
-    this.cameraCurve.getPointAt(this.progressFocus, this.positionAtCameraCurve);
-    this.camera.orthographicCamera.lookAt(this.positionAtCameraCurve);
-    
-    this.camera.orthographicCamera.updateProjectionMatrix()
+    this.camera.orthographicCamera.lookAt(this.lookAtTarget);
+    this.camera.orthographicCamera.updateProjectionMatrix();
   };
 }
