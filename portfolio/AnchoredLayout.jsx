@@ -54,7 +54,6 @@ function ContactLinks() {
 export default function AnchoredLayout({ active, go }) {
   const P = PORTFOLIO;
   const sec = P.sections[active];
-  const pin = ANCHOR_POINT[sec.anchor];
 
   return (
     <div className="anchored-field anchored-scroll">
