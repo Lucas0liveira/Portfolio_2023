@@ -24,7 +24,7 @@
   --line:        rgba(38, 32, 25, 0.12);
 
   /* accent — overridden by tweak */
-  --accent:      #e2774f;
+  --accent:      #F76440;
   --accent-ink:  #ffffff;
 
   /* surface / glass — driven by the balance tweak (JS sets these) */

@@ -244,7 +244,7 @@ below are the desktop intent; see **Responsive** for mobile.
 | `--ink-soft` | `#5b5246` | secondary text |
 | `--ink-faint` | `#8d8275` | tertiary text / ticks |
 | `--line` | `rgba(38,32,25,0.12)` | hairline borders |
-| **Accent (default)** | `#e2774f` (coral) | buttons, eyebrows, pins, active states. Options offered: coral, lavender `#8a74d8`, teal `#2f9e8f`, navy `#3a3f6b`, book-red `#b9503c`. |
+| **Accent (default)** | `#F76440` (coral) | buttons, eyebrows, pins, active states. Options offered: coral, lavender `#8a74d8`, teal `#2f9e8f`, navy `#3a3f6b`, book-red `#b9503c`. |
 | Accent ink | `#ffffff` | text on accent |
 
 ### Glass surface (the signature look)

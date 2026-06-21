@@ -5,7 +5,7 @@ const { useState, useEffect, useRef, useCallback } = React;
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "font": "grotesque",
-  "accent": "#e2774f",
+  "accent": "#F76440",
   "balance": 42,
   "showPins": true
 }/*EDITMODE-END*/;
@@ -128,7 +128,7 @@ function App() {
           onChange={(v) => setTweak('font', v)} />
         <window.TweakSection label="Accent & balance" />
         <window.TweakColor label="Accent" value={t.accent}
-          options={['#e2774f', '#8a74d8', '#2f9e8f', '#3a3f6b', '#b9503c']}
+          options={['#F76440', '#8a74d8', '#2f9e8f', '#3a3f6b', '#b9503c']}
           onChange={(v) => setTweak('accent', v)} />
         <window.TweakSlider label="Scene ↔ content" value={t.balance} min={0} max={100} unit="%"
           onChange={(v) => setTweak('balance', v)} />
